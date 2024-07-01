@@ -80,16 +80,21 @@ make console
 - **User:** myuser
 - **Password:** mypassword
 
+### OPEN API documentation
+```
+http://localhost:8000/api/doc
+```
+
 ### API Endpoints
 
 - **Create Order:**
   ```
-  POST /order/create
+  POST /orders/create
   ```
 
 - **Get Order by ID:**
   ```
-  GET /order/{id}
+  GET /orders/{id}
   ```
 
 For detailed information on each endpoint, refer to the `OrderControllerApi` controller.

@@ -17,7 +17,10 @@ use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 
-#[Route('/order')]
+use Nelmio\ApiDocBundle\Annotation\Model;
+use OpenApi\Attributes as OA;
+
+#[Route('/orders')]
 class OrderControllerApi extends AbstractController
 {
     private LoggerInterface $logger;
@@ -30,6 +33,83 @@ class OrderControllerApi extends AbstractController
     }
 
     #[Route('/create', name: 'create_order', methods: ['POST'])]
+    #[OA\Post(
+        path: "/orders/create",
+        summary: "Create a new order",
+        tags: ["Order"],
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                type: "object",
+                properties: [
+                    new OA\Property(property: "name", type: "string", example: "Order 1"),
+                    new OA\Property(
+                        property: "items",
+                        type: "array",
+                        items: new OA\Items(
+                            type: "object",
+                            properties: [
+                                new OA\Property(property: "product_id", type: "integer", example: 1),
+                                new OA\Property(property: "quantity", type: "integer", example: 2)
+                            ]
+                        )
+                    )
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Order created",
+                content: new OA\JsonContent(
+                    type: "object",
+                    properties: [
+                        new OA\Property(property: "message", type: "string", example: "Order was created"),
+                        new OA\Property(property: "order", type: "object",
+                            properties: [
+                                new OA\Property(property: "id", type: "integer", example: 1),
+                                new OA\Property(property: "name", type: "string", example: "Order 1"),
+                                new OA\Property(property: "date", type: "string", format: "date-time", example: "2024-07-01 12:34:56"),
+                                new OA\Property(
+                                    property: "items",
+                                    type: "array",
+                                    items: new OA\Items(
+                                        type: "object",
+                                        properties: [
+                                            new OA\Property(property: "id", type: "integer", example: 1),
+                                            new OA\Property(property: "name", type: "string", example: "Product Name"),
+                                            new OA\Property(property: "price", type: "number", format: "float", example: 19.99),
+                                            new OA\Property(property: "quantity", type: "integer", example: 2)
+                                        ]
+                                    )
+                                )
+                            ]
+                        )
+                    ]
+                )
+            ),
+            new OA\Response(
+                response: 400,
+                description: "Invalid JSON data",
+                content: new OA\JsonContent(
+                    type: "object",
+                    properties: [
+                        new OA\Property(property: "error", type: "string", example: "Invalid JSON data")
+                    ]
+                )
+            ),
+            new OA\Response(
+                response: 500,
+                description: "Error creating order",
+                content: new OA\JsonContent(
+                    type: "object",
+                    properties: [
+                        new OA\Property(property: "error", type: "string", example: "Error creating order")
+                    ]
+                )
+            )
+        ]
+    )]
     public function createOrder(Request $request, EntityManagerInterface $em): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -74,7 +154,7 @@ class OrderControllerApi extends AbstractController
         }
 
         return $this->json([
-            'message' => 'Zamówienie zostało utworzone',
+            'message' => 'Order was created',
             'order' => [
                 'id' => $order->getId(),
                 'name' => $order->getName(),
@@ -84,7 +164,70 @@ class OrderControllerApi extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name:'orders_show', methods: ['GET'])]
+    #[Route('/{id}', name: 'orders_show', methods: ['GET'])]
+    #[OA\Get(
+        path: "/orders/{id}",
+        summary: "Show order details",
+        tags: ["Order"],
+        parameters: [
+            new OA\Parameter(
+                name: "id",
+                in: "path",
+                required: true,
+                schema: new OA\Schema(type: "integer"),
+                description: "Order ID"
+            )
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: "Order details",
+                content: new OA\JsonContent(
+                    type: "object",
+                    properties: [
+                        new OA\Property(property: "id", type: "integer", example: 1),
+                        new OA\Property(property: "name", type: "string", example: "Order 1"),
+                        new OA\Property(property: "date", type: "string", format: "date-time", example: "2024-07-01 12:34:56"),
+                        new OA\Property(
+                            property: "items",
+                            type: "array",
+                            items: new OA\Items(
+                                type: "object",
+                                properties: [
+                                    new OA\Property(property: "id", type: "integer", example: 1),
+                                    new OA\Property(property: "name", type: "string", example: "Product 1"),
+                                    new OA\Property(property: "price", type: "number", format: "float", example: 10),
+                                    new OA\Property(property: "quantity", type: "integer", example: 3)
+                                ]
+                            )
+                        ),
+                        new OA\Property(
+                            property: "calculation", 
+                            type: "array", 
+                            items: new OA\Items(
+                                type: "object",
+                                properties: [
+                                    new OA\Property(property: "grand_total", type: "number", format: "float", example: 36.9),
+                                    new OA\Property(property: "total_price", type: "number", format: "float", example: 30),
+                                    new OA\Property(property: "total_vat", type: "number", format: "float", example: 6.9),
+                                ]
+                            )
+                        )
+                    ]
+                )
+            ),
+            new OA\Response(
+                response: 404,
+                description: "Order not found",
+                content: new OA\JsonContent(
+                    type: "object",
+                    properties: [
+                        new OA\Property(property: "error", type: "string", example: "Order not found")
+                    ]
+                )
+            )
+        ]
+    )]
     public function show(int $id, OrdersRepository $ordersRepository): JsonResponse
     {
         $order = $ordersRepository->find($id);
