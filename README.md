@@ -63,9 +63,9 @@ To start the project, follow these steps:
 ### Running the Application
 
 Access the application via:
-```
-http://localhost:8000/
-```
+
+[Application](http://localhost:8000)
+
 
 ### Accessing Container Console
 
@@ -81,9 +81,8 @@ make console
 - **Password:** mypassword
 
 ### OPEN API documentation
-```
-http://localhost:8000/api/doc
-```
+
+[OPEN API documentation](http://localhost:8000/api/doc)
 
 ### API Endpoints
 
