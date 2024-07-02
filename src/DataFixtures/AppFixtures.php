@@ -25,6 +25,18 @@ class AppFixtures extends Fixture
         $product2->setDescription('Lorem ipsum...');
         $product2->setImage('product2.jpg');
         $manager->persist($product2);
+        
+        $order = new Orders();
+        $order->setName('Sample Order');
+
+        $orderItem = new OrdersItem();
+        $orderItem->setProduct($product1);
+        $orderItem->setQuantity(2);
+        $orderItem->setOrder($order);
+
+        $order->addOrdersItem($orderItem);
+        $manager->persist($order);
+        $manager->persist($orderItem);
 
         $manager->flush();
     }
