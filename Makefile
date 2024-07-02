@@ -28,6 +28,9 @@ clear-cache:
 doctrine-clear-cache:
 	docker exec -it $(CONTAINER_NAME) php bin/console doctrine:cache:clear-metadata
 
+test:
+	docker exec -it $(CONTAINER_NAME) php bin/phpunit
+
 phpstan:
 	composer --working-dir=tools/phpstan install
 	tools/phpstan/vendor/bin/phpstan analyse src
