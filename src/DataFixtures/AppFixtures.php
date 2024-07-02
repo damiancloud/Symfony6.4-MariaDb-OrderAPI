@@ -5,6 +5,8 @@ namespace App\DataFixtures;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Persistence\ObjectManager;
 use App\Entity\Product;
+use App\Entity\Orders;
+use App\Entity\OrdersItem;
 
 class AppFixtures extends Fixture
 {
